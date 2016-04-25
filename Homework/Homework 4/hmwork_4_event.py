@@ -67,19 +67,13 @@ def generate_orders(df_events):
     ls_dates = df_events.index
 
     for symbol in df_events:
-        for date in ls_dates:
-            if df_events[symbol][date] == 1:
-                ls_orders.append([date.strftime('%Y, %m, %d'), "BUY", symbol, "100"])
-                
-                # Manages out of time range sells
-                aux_pos_index = ls_dates.get_loc(date)+5
-                if aux_pos_index <= len(ls_dates):
-                    date_sell = ls_dates[aux_pos_index]
-                else:
-                    date_sell = ls_dates[-1]
-                    
-                ls_orders.append([date_sell.strftime('%Y, %m, %d'), "SELL", symbol, "100"])
-                
+        for date_i in range(0, len(ls_dates)):
+	    date_buy = ls_dates[date_i]
+	    if np.isnan(df_events[symbol][date_buy]) == False:
+		ls_orders.append([date_buy.year, date_buy.month, date_buy.day, symbol, "BUY", "100"]) 
+		date_sell = ls_dates[min(date_i+5, (len(ls_dates)-1))]
+		ls_orders.append([date_sell.year, date_sell.month, date_sell.day, symbol,"SELL", "100"])
+           
     return ls_orders
 
 def write_orders(ls_list_name, ls_orders):
